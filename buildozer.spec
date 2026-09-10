@@ -1,50 +1,25 @@
-name: Build Android APK
+[app]
+title = AstroTrading
+package.name = astrotrading
+package.domain = org.astro
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
+version = 1.0
 
-on:
-  push:
-    branches: [ main, master ]
-  workflow_dispatch:
+# Swiss Ephemeris ke C-extension compilation ke liye hostpython3 zaroori hai
+requirements = python3,kivy,pyswisseph,hostpython3
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+orientation = portrait
+osx.kivy_version = 2.0.0
+fullscreen = 0
 
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+# Stable NDK and API target
+android.api = 33
+android.minapi = 21
+android.ndk = 25b
+android.accept_sdk_license = True
+android.archs = arm64-v8a, armeabi-v7a
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
-    - name: Install System Dependencies & C Compilers
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip python3-dev build-essential autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libffi-dev libssl-dev aidl
-        pip install --upgrade pip
-        pip install "buildozer>=1.5.0" cython
-
-    - name: Auto Accept Android SDK Licenses
-      run: |
-        mkdir -p ~/.android
-        touch ~/.android/repositories.cfg
-        
-        SDK_PATH="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
-        
-        if [ -d "$SDK_PATH/cmdline-tools/latest/bin" ]; then
-          yes | $SDK_PATH/cmdline-tools/latest/bin/sdkmanager --licenses || true
-        elif [ -d "$SDK_PATH/tools/bin" ]; then
-          yes | $SDK_PATH/tools/bin/sdkmanager --licenses || true
-        fi
-
-    - name: Build APK with Buildozer
-      run: |
-        # Non-interactive mode (Broken pipe se bachne ke liye)
-        buildozer android debug
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: AstroTrading-APK
-        path: bin/*.apk
+[buildozer]
+log_level = 2
+warn_on_root = 1
