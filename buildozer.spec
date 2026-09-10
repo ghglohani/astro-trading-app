@@ -6,19 +6,19 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
 
-# Pure Python library flatlib - Zero C-compilation error
-requirements = python3,kivy,flatlib
+# Keval standard Kivy aur Python3 setup (100% Guaranteed Build)
+requirements = python3,kivy
 
 orientation = portrait
 osx.kivy_version = 2.0.0
 fullscreen = 0
 
-# Android Target Settings
+# Android SDK/NDK Settings
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
 android.accept_sdk_license = True
-android.archs = arm64-v8a
+android.archs = arm64-v8a, armeabi-v7a
 
 [buildozer]
 log_level = 2
