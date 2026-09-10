@@ -6,14 +6,13 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
 
-# Keval standard Kivy aur Python3 setup (100% Guaranteed Build)
+# Keval pure Python & Kivy
 requirements = python3,kivy
 
 orientation = portrait
 osx.kivy_version = 2.0.0
 fullscreen = 0
 
-# Android SDK/NDK Settings
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
