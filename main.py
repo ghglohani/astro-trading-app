@@ -5,23 +5,22 @@ from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
 from kivy.uix.scrollview import ScrollView
 import datetime
-import ephem
-import math
-
-# Lahiri Ayanamsa Approx adjustment for Sidereal positions
-LAHIRI_AYANAMSA = 24.1  # Approx current Ayanamsa
+from flatlib.datetime import Datetime
+from flatlib.geopos import GeoPos
+from flatlib.chart import Chart
+from flatlib import const
 
 PLANETS = {
-    'Moon': ephem.Moon(),
-    'Sun': ephem.Sun(),
-    'Mercury': ephem.Mercury(),
-    'Venus': ephem.Venus(),
-    'Mars': ephem.Mars(),
-    'Jupiter': ephem.Jupiter(),
-    'Saturn': ephem.Saturn(),
-    'Uranus': ephem.Uranus(),
-    'Neptune': ephem.Neptune(),
-    'Pluto': ephem.Pluto()
+    'Moon': const.MOON,
+    'Sun': const.SUN,
+    'Mercury': const.MERCURY,
+    'Venus': const.VENUS,
+    'Mars': const.MARS,
+    'Jupiter': const.JUPITER,
+    'Saturn': const.SATURN,
+    'Uranus': const.URANUS,
+    'Neptune': const.NEPTUNE,
+    'Pluto': const.PLUTO
 }
 
 NAKSHATRAS = [
@@ -45,21 +44,17 @@ CONJUNCTION_RULES = {
     ("Saturn", "Uranus"): "Major Negative in Bearish Sign",
 }
 
-def get_planet_pos(date_obj, planet_obj):
-    observer = ephem.Observer()
-    observer.date = date_obj.strftime('%Y/%m/%d 00:00:00')
-    planet_obj.compute(observer)
+def get_planet_pos(date_obj, planet_code):
+    dt = Datetime(date_obj.strftime('%Y/%m/%d'), '00:00', '+00:00')
+    pos = GeoPos('00n00', '000e00')
+    chart = Chart(dt, pos, hsys=const.HOUSES_PLACIDUS)
+    obj = chart.get(planet_code)
     
-    # Ecliptic longitude in degrees
-    ecl = ephem.Ecliptic(planet_obj)
-    deg = math.degrees(ecl.lon)
-    
-    # Sidereal (Lahiri) Longitude
-    sidereal_deg = (deg - LAHIRI_AYANAMSA) % 360
-    
-    nak_num = int(sidereal_deg / (360 / 27))
-    pada = int((sidereal_deg % (360 / 27)) / (360 / 108)) + 1
-    return sidereal_deg, NAKSHATRAS[nak_num], pada
+    # Sidereal Adjustment (approx Ayanamsa)
+    lon = (obj.lon - 24.1) % 360
+    nak_num = int(lon / (360 / 27))
+    pada = int((lon % (360 / 27)) / (360 / 108)) + 1
+    return lon, NAKSHATRAS[nak_num], pada
 
 class AstroTradingApp(App):
     def build(self):
@@ -93,7 +88,7 @@ class AstroTradingApp(App):
         content = BoxLayout(orientation='vertical', size_hint_y=None, spacing=10)
         content.bind(minimum_height=content.setter('height'))
 
-        p_positions = {p_name: get_planet_pos(today, p_obj)[0] for p_name, p_obj in PLANETS.items()}
+        p_positions = {p_name: get_planet_pos(today, p_code)[0] for p_name, p_code in PLANETS.items()}
         
         p_keys = list(PLANETS.keys())
         found = False
@@ -159,8 +154,8 @@ class AstroTradingApp(App):
         res_label = Label(text="", font_size=16)
 
         def update_nakshatra(spinner_obj, text):
-            p_obj = PLANETS[text]
-            long_val, nak, pada = get_planet_pos(datetime.date.today(), p_obj)
+            p_code = PLANETS[text]
+            long_val, nak, pada = get_planet_pos(datetime.date.today(), p_code)
             res_label.text = f"Planet: {text}\nDegree: {round(long_val, 2)}°\nNakshatra: {nak}\nPada: {pada}"
 
         spinner.bind(text=update_nakshatra)
