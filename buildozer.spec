@@ -6,14 +6,14 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
 
-# pyswisseph / swisseph ki jagah ephem use karein jo Android par smooth compile hota hai
-requirements = python3,kivy,ephem
+# Pure Python library 'flatlib' - Android par 100% compile hoga
+requirements = python3,kivy,flatlib
 
 orientation = portrait
 osx.kivy_version = 2.0.0
 fullscreen = 0
 
-# Android SDK/NDK Settings for Ubuntu 22.04
+# Android SDK/NDK Settings
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
