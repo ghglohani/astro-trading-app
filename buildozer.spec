@@ -6,14 +6,14 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
 
-# pyswisseph ki jagah swisseph ka use Android C-compilation error ko fix karta hai
-requirements = python3,kivy,swisseph
+# pyswisseph / swisseph ki jagah ephem use karein jo Android par smooth compile hota hai
+requirements = python3,kivy,ephem
 
 orientation = portrait
 osx.kivy_version = 2.0.0
 fullscreen = 0
 
-# Android SDK / NDK Target Settings
+# Android SDK/NDK Settings for Ubuntu 22.04
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
