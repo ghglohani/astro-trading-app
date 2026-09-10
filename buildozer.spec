@@ -6,14 +6,14 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
 
-# Swiss Ephemeris ke C-extension compilation ke liye hostpython3 zaroori hai
-requirements = python3,kivy,pyswisseph,hostpython3
+# pyswisseph ki jagah swisseph ka use Android C-compilation error ko fix karta hai
+requirements = python3,kivy,swisseph
 
 orientation = portrait
 osx.kivy_version = 2.0.0
 fullscreen = 0
 
-# Stable NDK and API target
+# Android SDK / NDK Target Settings
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
