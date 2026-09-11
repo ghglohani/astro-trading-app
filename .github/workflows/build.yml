@@ -27,14 +27,10 @@ jobs:
         pip install --upgrade pip setuptools
         pip install "buildozer==1.5.0" "cython<3.0.0"
 
-    - name: Set Android NDK Environment
-      run: |
-        echo "ANDROID_NDK_HOME=$HOME/.buildozer/android/platform/android-ndk-r25b" >> $GITHUB_ENV
-
-    - name: Build APK
+    - name: Build APK with Buildozer
       run: |
         export BUILDOZER_ALLOW_KIVY_BUILD_AS_ROOT=1
-        buildozer -v android debug
+        buildozer android debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
