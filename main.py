@@ -1,50 +1,131 @@
-import json
 import os
+import json
+import datetime
+import swisseph as swe
+
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
+from kivy.resources import resource_find
 
-# स्क्रीन का बैकग्राउंड डार्क रखने के लिए
+# ऐप बैकग्राउंड
 Window.clearcolor = (0.1, 0.1, 0.12, 1)
 
-# --- 1. CONJUNCTION LOGIC FUNCTION ---
-def check_conjunction_effects(planets_data):
-    """
-    planets_data structure example:
-    {
-       "Moon": {"deg": 120.5, "is_retro": False, "sign": "Leo"},
-       "Mars": {"deg": 121.2, "is_retro": False, "sign": "Leo"},
-       "Jupiter": {"deg": 45.0, "is_retro": True, "sign": "Taurus"}
-    }
-    """
-    json_path = "conjunction_rules.json"
-    if not os.path.exists(json_path):
-        return ["[ERROR] conjunction_rules.json file missing!"]
+# -------------------------------------------------------------
+# 1. FILE PATH HANDLER (Android Safe Path)
+# -------------------------------------------------------------
+def get_rules_filepath(filename="conjunction_rules.json"):
+    # Kivy resource check
+    found = resource_find(filename)
+    if found and os.path.exists(found):
+        return found
+    
+    # Absolute local path
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    local_path = os.path.join(base_dir, filename)
+    return local_path if os.path.exists(local_path) else None
+
+# -------------------------------------------------------------
+# 2. SWISS EPHEMERIS CORE ENGINE
+# -------------------------------------------------------------
+PLANET_IDS = {
+    "Sun": swe.SUN,
+    "Moon": swe.MOON,
+    "Mercury": swe.MERCURY,
+    "Venus": swe.VENUS,
+    "Mars": swe.MARS,
+    "Jupiter": swe.JUPITER,
+    "Saturn": swe.SATURN,
+    "Uranus": swe.URANUS,
+    "Neptune": swe.NEPTUNE,
+    "Pluto": swe.PLUTO,
+    "Rahu": swe.MEAN_NODE
+}
+
+ZODIAC_SIGNS = [
+    "Aries", "Taurus", "Gemini", "Cancer", 
+    "Leo", "Virgo", "Libra", "Scorpio", 
+    "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+]
+
+def calculate_swiss_ephemeris_positions():
+    """शुद्ध Swiss Ephemeris से सभी 9+ ग्रहों की सटीक डिग्री प्राप्त करें"""
+    now = datetime.datetime.utcnow()
+    # UTC Julian Day Berechnung
+    julian_day = swe.julday(now.year, now.month, now.day, now.hour + now.minute / 60.0)
+
+    calculated_planets = {}
+
+    for name, p_id in PLANET_IDS.items():
+        try:
+            # Swiss Ephemeris UT calculation
+            res, flags = swe.calc_ut(julian_day, p_id)
+            long_deg = res[0]
+            speed = res[3]
+            
+            sign_idx = int(long_deg // 30)
+            sign_name = ZODIAC_SIGNS[sign_idx] if 0 <= sign_idx < 12 else "Unknown"
+            is_retro = speed < 0  # Negative Speed = Retrograde
+
+            calculated_planets[name] = {
+                "deg": long_deg,
+                "speed": speed,
+                "sign": sign_name,
+                "is_retro": is_retro
+            }
+        except Exception as e:
+            continue
+
+    # Ketu Calculation (Rahu + 180 Degrees)
+    if "Rahu" in calculated_planets:
+        rahu_deg = calculated_planets["Rahu"]["deg"]
+        ketu_deg = (rahu_deg + 180.0) % 360.0
+        ketu_sign_idx = int(ketu_deg // 30)
+        calculated_planets["Ketu"] = {
+            "deg": ketu_deg,
+            "speed": calculated_planets["Rahu"]["speed"],
+            "sign": ZODIAC_SIGNS[ketu_sign_idx],
+            "is_retro": True
+        }
+
+    return calculated_planets
+
+# -------------------------------------------------------------
+# 3. RULES MATCHING ENGINE
+# -------------------------------------------------------------
+def evaluate_conjunctions():
+    # 1. Swiss Ephemeris data fetch
+    planets_data = calculate_swiss_ephemeris_positions()
+    
+    # 2. JSON Rules load
+    json_path = get_rules_filepath("conjunction_rules.json")
+    if not json_path:
+        return ["[ERROR] 'conjunction_rules.json' missing from APK bundle!"]
 
     try:
         with open(json_path, "r", encoding="utf-8") as f:
             rules = json.load(f)
     except Exception as e:
-        return [f"[ERROR] JSON read failed: {str(e)}"]
+        return [f"[ERROR] Rules JSON parse failed: {str(e)}"]
 
     active_effects = []
     planets = list(planets_data.keys())
 
-    # हर दो ग्रहों के बीच 1 डिग्री युति (Conjunction) चेक करें
+    # 3. Check Degree Differences (Orb <= 1.0°)
     for i in range(len(planets)):
         for j in range(i + 1, len(planets)):
             p1, p2 = planets[i], planets[j]
-            d1 = planets_data[p1].get("deg", 0.0)
-            d2 = planets_data[p2].get("deg", 0.0)
+            d1 = planets_data[p1]["deg"]
+            d2 = planets_data[p2]["deg"]
 
             diff = abs(d1 - d2)
             if diff > 180:
                 diff = 360 - diff
 
-            # Orb Difference <= 1.0 Degree
+            # Orb Difference Check
             if diff <= 1.0:
                 matched = False
                 for rule in rules:
@@ -52,12 +133,12 @@ def check_conjunction_effects(planets_data):
                     if (p1 == r1 and p2 == r2) or (p1 == r2 and p2 == r1):
                         matched = True
                         
-                        # Condition: Retrograde Check
+                        # Retrograde Check
                         if rule.get("condition") == "jupiter_retrograde":
                             jup_retro = planets_data.get("Jupiter", {}).get("is_retro", False)
                             effect = rule.get("effect_if_true") if jup_retro else rule.get("effect_if_false")
                         
-                        # Condition: Bullish / Bearish Sign Check
+                        # Sign Type Check
                         elif rule.get("condition") == "sign_type":
                             sign = planets_data.get(p1, {}).get("sign", "")
                             is_bearish = sign in ["Cancer", "Scorpio", "Pisces"]
@@ -66,26 +147,36 @@ def check_conjunction_effects(planets_data):
                         else:
                             effect = rule.get("effect", "Active Conjunction")
 
-                        active_effects.append(f"[b]• {p1} + {p2}[/b]\n  [color=00ffcc]Effect:[/color] {effect}")
+                        r_tag1 = " (R)" if planets_data[p1]["is_retro"] else ""
+                        r_tag2 = " (R)" if planets_data[p2]["is_retro"] else ""
+                        
+                        active_effects.append(
+                            f"[b]• {p1}{r_tag1} + {p2}{r_tag2}[/b]\n"
+                            f"  [color=00ffcc]Effect:[/color] {effect}\n"
+                            f"  [color=888888]Orb Diff: {diff:.2f}° | Sign: {planets_data[p1]['sign']}[/color]"
+                        )
 
                 if not matched:
-                    active_effects.append(f"[b]• {p1} + {p2}[/b]\n  [color=00ffcc]Effect:[/color] General Conjunction Active")
+                    active_effects.append(
+                        f"[b]• {p1} + {p2}[/b]\n"
+                        f"  [color=00ffcc]Effect:[/color] Active Conjunction\n"
+                        f"  [color=888888]Orb Diff: {diff:.2f}°[/color]"
+                    )
 
     return active_effects
 
-
-# --- 2. DAILY SCREEN WITH SCROLLVIEW ---
+# -------------------------------------------------------------
+# 4. KIVY SCREEN UI
+# -------------------------------------------------------------
 class DailyTransitScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         
-        # Main Layout
         layout = BoxLayout(orientation='vertical', padding=15, spacing=10)
         
-        # Heading Label
         heading = Label(
-            text="[b]Daily Astro Conjunctions[/b]",
-            font_size='22sp',
+            text="[b]Swiss Ephemeris Conjunctions[/b]",
+            font_size='20sp',
             size_hint_y=None,
             height=40,
             markup=True,
@@ -93,12 +184,11 @@ class DailyTransitScreen(Screen):
         )
         layout.add_widget(heading)
 
-        # ScrollView Layout
         scroll = ScrollView(size_hint=(1, 1))
         
         self.content_label = Label(
-            text="Loading Transits...",
-            font_size='17sp',
+            text="Calculating live Swiss Ephemeris transits...",
+            font_size='16sp',
             size_hint_y=None,
             markup=True,
             halign='left',
@@ -106,7 +196,6 @@ class DailyTransitScreen(Screen):
             color=(1, 1, 1, 1)
         )
         
-        # Auto height binding for ScrollView text
         self.content_label.bind(
             width=lambda instance, value: setattr(instance, 'text_size', (value, None)),
             texture_size=lambda instance, value: setattr(instance, 'height', value[1])
@@ -117,26 +206,18 @@ class DailyTransitScreen(Screen):
         self.add_widget(layout)
 
     def on_enter(self):
-        # यहाँ अपना Swiss Ephemeris / Real Planets Data जोड़ें
-        # Sample Planet Data (Degree Differences <= 1.0 Check)
-        sample_planets_data = {
-            "Moon": {"deg": 142.5, "is_retro": False, "sign": "Leo"},
-            "Mars": {"deg": 143.1, "is_retro": False, "sign": "Leo"},
-            "Jupiter": {"deg": 88.0, "is_retro": True, "sign": "Gemini"},
-            "Rahu": {"deg": 88.5, "is_retro": True, "sign": "Gemini"},
-            "Saturn": {"deg": 320.0, "is_retro": False, "sign": "Aquarius"}
-        }
+        try:
+            effects = evaluate_conjunctions()
+            if effects:
+                self.content_label.text = "\n\n".join(effects)
+            else:
+                self.content_label.text = "[color=aaaaaa]No Active Planetary Conjunctions (<= 1.0°) Today.[/color]"
+        except Exception as e:
+            self.content_label.text = f"[color=ff3333][CRASH PREVENTED] Error: {str(e)}[/color]"
 
-        # Check Conjunctions
-        effects = check_conjunction_effects(sample_planets_data)
-
-        if effects:
-            self.content_label.text = "\n\n".join(effects)
-        else:
-            self.content_label.text = "No Active Conjunctions Found Today."
-
-
-# --- 3. KIVY MAIN APP CLASS ---
+# -------------------------------------------------------------
+# 5. APP BUILDER
+# -------------------------------------------------------------
 class AstroTradingApp(App):
     def build(self):
         sm = ScreenManager()
