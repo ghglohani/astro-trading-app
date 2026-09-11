@@ -16,8 +16,10 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json
 
 # (list) Application requirements
-# Note: Using pure-python fallback for swisseph calculations to avoid NDK C-compilation failures
-requirements = python3,kivy,urllib3,certifi
+requirements = python3,kivy,pyswisseph
+
+# (str) Custom p4a local recipe directory
+p4a.local_recipes = ./p4a_recipes
 
 # (str) Application versioning
 version = 1.0.0
