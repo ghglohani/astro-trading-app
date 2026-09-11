@@ -16,7 +16,8 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json
 
 # (list) Application requirements
-requirements = python3,kivy,pyswisseph
+# Note: Using pure-python fallback for swisseph calculations to avoid NDK C-compilation failures
+requirements = python3,kivy,urllib3,certifi
 
 # (str) Application versioning
 version = 1.0.0
@@ -30,7 +31,7 @@ android.api = 33
 # (int) Minimum API required
 android.minapi = 21
 
-# (str) Android NDK version to use
+# (str) Android NDK version
 android.ndk = 25b
 
 # (bool) Accept SDK licenses
