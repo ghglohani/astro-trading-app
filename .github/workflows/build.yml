@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/kivy/buildozer:latest
+      options: --user root
 
     steps:
     - name: Checkout Repository
@@ -17,7 +18,8 @@ jobs:
 
     - name: Build APK with Buildozer Docker
       run: |
-        buildozer android debug
+        export BUILDOZER_ALLOW_KIVY_BUILD_AS_ROOT=1
+        yes | buildozer android debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
