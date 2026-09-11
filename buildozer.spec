@@ -16,7 +16,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json
 
 # (list) Application requirements
-# WARNING: pyswisseph is required for Swiss Ephemeris calculations
+# Note: cython, python3, kivy and pyswisseph are required
 requirements = python3,kivy,pyswisseph
 
 # (str) Application versioning
@@ -25,7 +25,7 @@ version = 1.0.0
 # (list) Permissions
 permissions = INTERNET
 
-# (int) Target Android API, should be as high as possible.
+# (int) Target Android API
 android.api = 33
 
 # (int) Minimum API required
@@ -34,31 +34,22 @@ android.minapi = 21
 # (str) Android NDK version to use
 android.ndk = 25b
 
-# (bool) If True, then skip building the ndk recipes
+# (bool) If True, skip updating NDK
 android.skip_update = False
 
-# (bool) If True, accept all SDK licences
+# (bool) Accept all SDK licenses automatically
 android.accept_sdk_license = True
 
 # (str) The Android arch to build for
-android.archs = arm64-v8a, armeabi-v7a
-
-# (list) List of Java .jar files to add to the libs
-# android.add_jars = foo.jar
-
-# (list) List of Gradle dependencies to add
-# android.gradle_dependencies =
+android.archs = arm64-v8a
 
 # (bool) Enable AndroidX
 android.enable_androidx = True
 
-# (str) Custom source dir for p4a
-# p4a.source_dir =
-
 [buildozer]
 
-# (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
+# (int) Log level (0 = error only, 1 = info, 2 = debug)
 log_level = 2
 
-# (int) Display warning if buildozer is run as root (0 = disable, 1 = enable)
+# (int) Display warning if buildozer is run as root
 warn_on_root = 1
