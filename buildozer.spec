@@ -6,18 +6,17 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
 
-# Keval pure Python & Kivy
 requirements = python3,kivy
 
 orientation = portrait
-osx.kivy_version = 2.0.0
 fullscreen = 0
 
+# SDK/NDK Settings
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
 android.accept_sdk_license = True
-android.archs = arm64-v8a, armeabi-v7a
+android.archs = arm64-v8a
 
 [buildozer]
 log_level = 2
