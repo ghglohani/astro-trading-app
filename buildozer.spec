@@ -12,11 +12,10 @@ package.domain = org.astro
 # (str) Source code where the main.py live
 source.dir = .
 
-# (list) Source files to include (JSON, PNG, PY etc.)
+# (list) Source files to include
 source.include_exts = py,png,jpg,kv,atlas,json
 
 # (list) Application requirements
-# Note: cython, python3, kivy and pyswisseph are required
 requirements = python3,kivy,pyswisseph
 
 # (str) Application versioning
@@ -33,9 +32,6 @@ android.minapi = 21
 
 # (str) Android NDK version to use
 android.ndk = 25b
-
-# (bool) If True, skip updating NDK
-android.skip_update = False
 
 # (bool) Accept all SDK licenses automatically
 android.accept_sdk_license = True
