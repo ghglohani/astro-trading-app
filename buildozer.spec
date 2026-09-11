@@ -16,7 +16,6 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json
 
 # (list) Application requirements
-# Note: cython version < 3.0 is forced via workflow for pyswisseph C-compilation
 requirements = python3,kivy,pyswisseph
 
 # (str) Application versioning
@@ -31,7 +30,7 @@ android.api = 33
 # (int) Minimum API required
 android.minapi = 21
 
-# (str) Android NDK version
+# (str) Android NDK version to use
 android.ndk = 25b
 
 # (bool) Accept SDK licenses
