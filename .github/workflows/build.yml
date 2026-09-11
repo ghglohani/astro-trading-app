@@ -23,11 +23,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential ccache git libffi-dev libssl-dev python3-dev autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libreadline-dev libgdbm-dev libsqlite3-dev libdb5.3-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev unzip zip openjdk-17-jdk
 
-    - name: Set up Android NDK 25b
-      run: |
-        echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/25.2.9519653" >> $GITHUB_ENV
-        echo "ANDROID_NDK_PATH=$ANDROID_SDK_ROOT/ndk/25.2.9519653" >> $GITHUB_ENV
-
     - name: Install Buildozer and Dependencies
       run: |
         python -m pip install --upgrade pip
