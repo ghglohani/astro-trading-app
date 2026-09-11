@@ -30,8 +30,8 @@ android.api = 33
 # (int) Minimum API required
 android.minapi = 21
 
-# (str) Android NDK version
-android.ndk = 25b
+# (str) Android NDK version (blank lets Buildozer download compatible version)
+android.ndk_path =
 
 # (bool) Accept SDK licenses
 android.accept_sdk_license = True
