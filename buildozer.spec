@@ -6,16 +6,17 @@ title = Astro Trading App
 # (str) Package name
 package.name = astrotradingapp
 
-# (str) Package domain (needed for android packaging)
+# (str) Package domain
 package.domain = org.astro
 
-# (str) Source code where the main.py live
+# (str) Source code directory
 source.dir = .
 
 # (list) Source files to include
 source.include_exts = py,png,jpg,kv,atlas,json
 
 # (list) Application requirements
+# Note: cython version < 3.0 is forced via workflow for pyswisseph C-compilation
 requirements = python3,kivy,pyswisseph
 
 # (str) Application versioning
@@ -30,13 +31,13 @@ android.api = 33
 # (int) Minimum API required
 android.minapi = 21
 
-# (str) Android NDK version to use
+# (str) Android NDK version
 android.ndk = 25b
 
-# (bool) Accept all SDK licenses automatically
+# (bool) Accept SDK licenses
 android.accept_sdk_license = True
 
-# (str) The Android arch to build for
+# (str) Target Architecture
 android.archs = arm64-v8a
 
 # (bool) Enable AndroidX
@@ -44,7 +45,7 @@ android.enable_androidx = True
 
 [buildozer]
 
-# (int) Log level (0 = error only, 1 = info, 2 = debug)
+# (int) Log level (2 = debug)
 log_level = 2
 
 # (int) Display warning if buildozer is run as root
