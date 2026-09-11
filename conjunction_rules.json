@@ -1,0 +1,51 @@
+[
+  {
+    "planet1": "Sun",
+    "planet2": "Moon",
+    "effect": "Active Planetary Conjunction"
+  },
+  {
+    "planet1": "Moon",
+    "planet2": "Mars",
+    "effect": "General Positive Momentum"
+  },
+  {
+    "planet1": "Moon",
+    "planet2": "Mercury",
+    "effect": "Sometimes Positive / Sometimes Negative Momentum"
+  },
+  {
+    "planet1": "Moon",
+    "planet2": "Jupiter",
+    "effect": "Sometimes Positive / Sometimes Negative Momentum"
+  },
+  {
+    "planet1": "Moon",
+    "planet2": "Venus",
+    "effect": "Majority times Negative Momentum"
+  },
+  {
+    "planet1": "Moon",
+    "planet2": "Saturn",
+    "effect": "Sometimes Positive / Sometimes Negative Momentum"
+  },
+  {
+    "planet1": "Moon",
+    "planet2": "Rahu",
+    "effect": "Negative Momentum"
+  },
+  {
+    "planet1": "Jupiter",
+    "planet2": "Rahu",
+    "condition": "jupiter_retrograde",
+    "effect_if_true": "Negative Momentum",
+    "effect_if_false": "Positive Momentum"
+  },
+  {
+    "planet1": "Saturn",
+    "planet2": "Rahu",
+    "condition": "sign_type",
+    "effect_bearish": "Major Negative Momentum",
+    "effect_bullish": "General Momentum"
+  }
+]
