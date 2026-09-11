@@ -16,10 +16,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,json
 
 # (list) Application requirements
-requirements = python3,kivy,pyswisseph
-
-# (str) Custom p4a local recipe directory
-p4a.local_recipes = ./p4a_recipes
+requirements = python3,kivy
 
 # (str) Application versioning
 version = 1.0.0
